@@ -18,6 +18,8 @@ storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
 
 
+print('Bot started')
+
 
 
 

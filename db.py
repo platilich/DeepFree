@@ -18,7 +18,10 @@ class Users:
                 '''
                 CREATE TABLE IF NOT EXISTS Users (
                     user_id INTEGER PRIMARY KEY,
+                    name TEXT,
+                    last_name TEXT,
                     username TEXT,
+                    count_message INTEGER,
                     conversation TEXT
                 )
                 '''
@@ -28,7 +31,7 @@ class Users:
             conn.commit()
 
 
-    def add_user(self, user_id):
+    def add_user(self, user_id, name, last_name, username):
         with self.get_connection() as conn:
             cursor = conn.cursor()
 
@@ -39,9 +42,9 @@ class Users:
 
             if user is None:
                 cursor.execute(
-                    '''INSERT INTO Users (user_id)
-                       VALUES (?)''',
-                    (user_id, )
+                    '''INSERT INTO Users (user_id, name, last_name, username)
+                       VALUES (?, ?, ?, ?)''',
+                    (user_id, name, last_name, username)
                 )
 
             conn.commit()
@@ -94,3 +97,11 @@ class Users:
                 role, content = line.split(": ", 1)
                 messages.append({"role": role, "content": content})
         return messages
+
+
+
+
+    def clean_history(self, user_id):
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('UPDATE Users SET conversation = ? WHERE user_id = ?',('updated', user_id))
