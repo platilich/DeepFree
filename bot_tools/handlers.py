@@ -3,6 +3,9 @@ from aiogram.types import Message, voice, user
 
 from db import Users
 from generate_text import generate_response_text
+from convertor import convert_ogg_to_wav
+from audio_recognation import voice_to_text
+
 
 
 db = Users()
@@ -45,4 +48,19 @@ async def text_input(message: Message):
 
 @router.message(F.voice)
 async def voice_input(message: Message):
-    pass
+    voice = message.voice
+    file_id = voice.file_id
+
+    # 2. Запрашиваем информацию о файле у Telegram
+    file_info = await message.bot.get_file(file_id)
+    file_path = file_info.file_path
+
+    # 3. Скачиваем и сохраняем файл (например, в папку "voices")
+    destination = f"voices/{voice.file_unique_id}.ogg"
+
+    convert_ogg_to_wav(destination, f'voice/{voice.file_unique_id}.wav')
+
+    tx = voice_to_text(f'voice/{voice.file_unique_id}.wav')
+
+    await message.bot.download_file(file_path, destination=destination)
+
