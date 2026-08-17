@@ -1,4 +1,5 @@
 from aiogram import Router, F
+from aiogram.enums import ParseMode
 from aiogram.types import Message, voice, user
 
 from db import Users
@@ -48,19 +49,23 @@ async def text_input(message: Message):
 
 @router.message(F.voice)
 async def voice_input(message: Message):
-    voice = message.voice
-    file_id = voice.file_id
+    user_id = message.from_user.id
 
-    # 2. Запрашиваем информацию о файле у Telegram
-    file_info = await message.bot.get_file(file_id)
-    file_path = file_info.file_path
+    file_id = message.voice.file_id
 
-    # 3. Скачиваем и сохраняем файл (например, в папку "voices")
-    destination = f"voices/{voice.file_unique_id}.ogg"
 
-    convert_ogg_to_wav(destination, f'voice/{voice.file_unique_id}.wav')
+    await message.bot.download(
+        message.voice,
+        destination=f"audio/{user_id}_{file_id}.ogg"
+    )
 
-    tx = voice_to_text(f'voice/{voice.file_unique_id}.wav')
 
-    await message.bot.download_file(file_path, destination=destination)
+    convert_ogg_to_wav(f"audio/{user_id}_{file_id}.ogg", f"audio/{user_id}_{file_id}.wav")
 
+    prompt = voice_to_text(f"audio/{user_id}_{file_id}.wav")
+    print(prompt)
+
+
+    response = generate_response_text(user_id, prompt)
+
+    await message.answer(text=response, parse_mode=ParseMode.HTML)

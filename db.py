@@ -3,7 +3,7 @@ import sqlite3
 
 class Users:
     def __init__(self):
-        self.db_path = 'users.db'
+        self.db_path = 'old_users.db'
 
 
     def get_connection(self):

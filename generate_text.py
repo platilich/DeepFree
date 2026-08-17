@@ -10,8 +10,6 @@ client = OpenAI(api_key=second_api_key, base_url=second_server)
 db.init_db()
 
 
-db.add_user('1')
-
 
 
 
